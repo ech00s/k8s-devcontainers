@@ -1,4 +1,4 @@
-FROM node:23-bookworm
+FROM node:latest
 RUN apt-get install git
 WORKDIR /app
 COPY . .
