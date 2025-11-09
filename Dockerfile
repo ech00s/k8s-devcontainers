@@ -1,4 +1,4 @@
-FROM node:23-alpine3.22
+FROM node:23-bookworm
 RUN apk add git
 WORKDIR /app
 COPY . .
