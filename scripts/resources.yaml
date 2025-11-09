@@ -76,4 +76,5 @@ spec:
       containers:
       - name: devc-cli
         image: ech00s/devc-cli:alpha0.1.0 
+        imagePullPolicy: Always
         command: ["tail", "-f", "/dev/null"]

@@ -33,7 +33,8 @@ function mk_depl(
                     }],
                     containers: [{
                         name: app_name,
-                        image: tag, 
+                        image: tag,
+                        imagePullPolicy: "Always",
                         volumeMounts: [{
                             name: 'workspace-volume',
                             mountPath: mount_path
