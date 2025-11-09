@@ -13,7 +13,7 @@ devc (){
               -n devc \
               -l app=devc-cli \
               -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
-    kubectl exec -i -t "$POD_NAME" -n devc -- devc "$@"
+    kubectl exec -i -t "$POD_NAME" -n devc -- /usr/local/bin/devc "$@"
 }
 
 export -f devc

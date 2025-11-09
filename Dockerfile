@@ -9,4 +9,3 @@ RUN cp /app/build/devc /usr/local/bin/devc
 RUN chmod +x /usr/local/bin/devc
 WORKDIR /
 RUN rm -rf /app
-ENTRYPOINT ["/usr/local/bin/devc"]
