@@ -2,11 +2,10 @@ on:
   push:
     branches: [ "main"]
 jobs:
-  test:
+  build:
     runs-on: 
       - self-hosted
       - x86_64
-    container: node:23-alpine3.22
     steps:
       - name: checkout
         uses: actions/checkout@v4
