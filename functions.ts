@@ -10,7 +10,7 @@ function mk_depl(
     workspace:string
 ): k8s.V1Deployment {
     const app_name = prefix+'-devcontainer';
-    const tag = `mcr.microsoft.com/devcontainers/${language}:bookworm`;
+    const tag = `ech00s/ssh-dev-${language}:alpha0.1.0`;
     const mount_path = "/home/vscode/"+workspace;
     return {
         apiVersion: 'apps/v1',
@@ -34,7 +34,6 @@ function mk_depl(
                     containers: [{
                         name: app_name,
                         image: tag, 
-                        command: ['tail', '-f', '/dev/null'],
                         volumeMounts: [{
                             name: 'workspace-volume',
                             mountPath: mount_path

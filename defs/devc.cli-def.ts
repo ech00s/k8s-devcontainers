@@ -10,7 +10,6 @@ const deploy_cmd = new_builder("deploy","Deploy a dev container")
             "java",
             "go",
             "rust",
-            "javascript-node",
             "typescript-node"
         ],
         shorthand:"-l",
