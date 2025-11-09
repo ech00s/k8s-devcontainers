@@ -1,4 +1,5 @@
 FROM node:23-alpine3.22
+RUN apk add git
 WORKDIR /app
 COPY . .
 RUN npm install
