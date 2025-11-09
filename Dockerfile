@@ -1,5 +1,5 @@
 FROM node:23-bookworm
-RUN apk add git
+RUN apt-get install git
 WORKDIR /app
 COPY . .
 RUN npm install
