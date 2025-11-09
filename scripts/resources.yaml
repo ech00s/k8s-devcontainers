@@ -61,5 +61,5 @@ spec:
       serviceAccountName: devc-sa
       containers:
       - name: devc-cli
-        image: ech00s/devc-cli:lalpha0.1.0 
+        image: ech00s/devc-cli:alpha0.1.0 
         command: ["tail", "-f", "/dev/null"]
