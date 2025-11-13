@@ -5,7 +5,7 @@ jobs:
   build:
     runs-on: 
       - self-hosted
-      - x86_64
+      - amd64
     steps:
       - name: checkout
         uses: actions/checkout@v4
