@@ -4,7 +4,6 @@ on:
 jobs:
   build:
     runs-on: 
-      - self-hosted
       - amd64
     steps:
       - name: checkout
