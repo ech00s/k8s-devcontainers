@@ -80,7 +80,7 @@ const deploy_cmd = new_builder("deploy","Deploy a dev container")
         shorthand:"-t",
         description:"Tag for the dev containe resources, used for delete and hostname generation"
     })
-    .add_pos("path",{
+    .add_pos("str",{
         variadic:true,
         description:"Public ssh keys to authorize"
     })
