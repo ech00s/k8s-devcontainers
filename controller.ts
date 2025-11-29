@@ -72,21 +72,19 @@ export class controller extends plugin<controller_config>{
                 },
                 "data":{
                     "entrypoint.sh":''+
-                        'apt-get update && apt-get install -y openssh-server\n'+
-                        'mkdir /home/vscode/.ssh \\ \n'+
-                        '    && touch /home/vscode/.ssh/authorized_keys \\ \n'+
-                        '    && chown -R vscode:vscode /home/vscode/.ssh \\ \n'+
-                        '    && chmod 700 /home/vscode/.ssh \\ \n'+
-                        '    && chmod 600 /home/vscode/.ssh/authorized_keys\n'+
-                        'sed -i "s/#PasswordAuthentication yes/PasswordAuthentication no/g" /etc/ssh/sshd_config \\ \n'+
-                        '    && sed -i "s/#PermitRootLogin prohibit-password/PermitRootLogin no/g" /etc/ssh/sshd_config \\ \n'+
-                        '    && sed -i "s/#PubkeyAuthentication yes/PubkeyAuthentication yes/g" /etc/ssh/sshd_config \\ \n'+
-                        '    && sed -i "s/#AuthorizedKeysFile .*/AuthorizedKeysFile .ssh/authorized_keys/g"  \n'+
-                        'IFS="," read -ra SPLIT_KEYS<<< "$AUTHORIZED_KEYS"\n'+
-                        'for key in "${AUTHORIZED_KEYS[@]}"; do\n'+
-                        '    echo $key >> ~/.ssh/authorized_keys\n'+
-                        'done\n'+
-                        'service ssh start -D\n'
+                        'apt-get update -y && apt-get install -y openssh-server;'+
+                        'mkdir /home/vscode/.ssh'+
+                        ' && touch /home/vscode/.ssh/authorized_keys'+
+                        ' && chown -R vscode:vscode /home/vscode/.ssh'+
+                        ' && chmod 700 /home/vscode/.ssh'+
+                        ' && chmod 600 /home/vscode/.ssh/authorized_keys;'+
+                        'sed -i "s/#PasswordAuthentication yes/PasswordAuthentication no/g" /etc/ssh/sshd_config'+
+                        ' && sed -i "s/#PermitRootLogin prohibit-password/PermitRootLogin no/g" /etc/ssh/sshd_config'+
+                        ' && sed -i "s/#PubkeyAuthentication yes/PubkeyAuthentication yes/g" /etc/ssh/sshd_config'+
+                        ' && sed -i "s/#AuthorizedKeysFile .*/AuthorizedKeysFile .ssh/authorized_keys/g";'+
+                        'IFS="," read -ra SPLIT_KEYS<<< "$AUTHORIZED_KEYS";'+
+                        'for key in "${AUTHORIZED_KEYS[@]}"; do;echo $key >> ~/.ssh/authorized_keys;done;'+
+                        'service ssh start -D;'
                 }
             },
             {
