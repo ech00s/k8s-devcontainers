@@ -42,7 +42,7 @@ export class controller extends plugin<controller_config>{
         },{
             namespace:"str",
             domain:"str",
-            workspace:"str",
+            workspace:"path",
             ingress_annotations:"$ref/obj/ingress_annotations"
         },{
             "ingress_annotations":{
@@ -292,7 +292,7 @@ export class controller extends plugin<controller_config>{
         language: string,
         workspace_folder:string,
         pvc_size:number,
-        key_files:string[],
+        keys:string[],
         tag?:string,
     ):Promise<string|derror>{
         const kc = new k8s.KubeConfig();
@@ -301,9 +301,7 @@ export class controller extends plugin<controller_config>{
         //preprocess
         if(!tag) tag = `${language}.${randomBytes(4).toString('hex')}`
         const file_path = join(this.get_val("workspace"),`${tag}.yaml`);
-        const authorized_keys = 
-            key_files.map(kf=>readFileSync(kf,"utf-8"))
-                .join(",")
+        const authorized_keys = keys.join(",")
         const image = `mcr.microsoft.com/devcontainers/${language}:bookworm`
         //create manifest
         const json_manifest = this.create_manifest(

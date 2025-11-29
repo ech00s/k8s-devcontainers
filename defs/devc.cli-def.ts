@@ -1,5 +1,55 @@
-import  {cmd_builder,logger,cli_builder} from "cli-maker"
+import  {cmd_builder,logger,cli_builder,register_plugin,meta_arg,add_meta_arg, obj} from "cli-maker"
 import { controller,is_derror} from "../controller"
+
+register_plugin(controller)
+
+const namespace:meta_arg = {
+    plugin: "controller",
+    shorthands:["-cn","--ctrl-namespace"],
+    name: "ctrl-namespace",
+    key: "namespace",
+    type:"str"
+}
+
+add_meta_arg(namespace)
+
+const workspace:meta_arg = {
+    plugin: "controller",
+    shorthands:["-cw","--ctrl-workspace"],
+    name: "ctrl-workspace",
+    key: "workspace",
+    type:"path"
+
+}
+
+add_meta_arg(workspace)
+
+const domain:meta_arg = {
+    plugin: "controller",
+    shorthands:["-cd","--ctrl-domain"],
+    name: "ctrl-domain",
+    key: "domain",
+    type:"str"
+}
+
+add_meta_arg(domain)
+
+const ingress_annotations:meta_arg = {
+    plugin: "controller",
+    shorthands:["-ca","--ctrl-annotations"],
+    name: "ctrl-annotations",
+    key: "ingress_annotations",
+    type:"str_lst",
+    transform: ([issuer,group,kind]:string[]) => {
+        return {
+            "cert-manager.io/issuer":issuer,
+            "cert-manager.io/issuer-group":group,
+            "cert-manager.io/issuer-kind":kind
+        }
+    },
+}
+
+add_meta_arg(ingress_annotations)
 
 const new_builder = cmd_builder.make_builder({logger,controller})
 const deploy_cmd = new_builder("deploy","Deploy a dev container")
@@ -30,18 +80,16 @@ const deploy_cmd = new_builder("deploy","Deploy a dev container")
         shorthand:"-t",
         description:"Tag for the dev containe resources, used for delete and hostname generation"
     })
-    .add_named("key-files","path",{
-        optional:false,
+    .add_pos("path",{
         variadic:true,
-        description:"Paths to the ssh keys to authorize"
+        description:"Public ssh keys to authorize"
     })
     .add_func(async ({logger,controller},{
         language,
         workspace,
         tag,
         ["pvc-size"]:pvc_size,
-        ["key-files"]:key_files
-    })=>{
+    },...keys)=>{
         if(pvc_size>5 || pvc_size<=0){
            logger.throw("Invalid pvc size: "+pvc_size.toString())
         }
@@ -50,7 +98,7 @@ const deploy_cmd = new_builder("deploy","Deploy a dev container")
             language,
             workspace,
             pvc_size,
-            key_files,
+            keys,
             tag
         )
 

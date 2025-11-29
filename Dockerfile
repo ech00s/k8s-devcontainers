@@ -7,7 +7,7 @@ RUN mkdir build
 RUN npm run build
 RUN cp /app/build/devc /usr/local/bin/devc
 RUN chmod +x /usr/local/bin/devc
-RUN mkdir /.devc
-RUN chmod 777 /.devc
-WORKDIR /
+RUN mkdir /root/.cli-make
+RUN mkdir /root/.devc
+WORKDIR /root
 RUN rm -rf /app
