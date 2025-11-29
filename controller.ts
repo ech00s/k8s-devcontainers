@@ -73,17 +73,15 @@ export class controller extends plugin<controller_config>{
                 "data":{
                     "entrypoint.sh":''+
                         'set -e;apt-get update -y && apt-get install -y openssh-server;'+
-                        'mkdir /home/vscode/.ssh'+
-                        ' && touch /home/vscode/.ssh/authorized_keys'+
-                        ' && chown -R vscode:vscode /home/vscode/.ssh'+
-                        ' && chmod 700 /home/vscode/.ssh'+
-                        ' && chmod 600 /home/vscode/.ssh/authorized_keys;'+
+                        'mkdir ~/.ssh'+
+                        ' && touch ~/.ssh/authorized_keys'+
+                        ' && chmod 700 ~/.ssh'+
+                        ' && chmod 600 ~/.ssh/authorized_keys;'+
                         'sed -i -e "s/#PasswordAuthentication yes/PasswordAuthentication no/g" /etc/ssh/sshd_config'+
                         ' && sed -i -e "s/#PermitRootLogin prohibit-password/PermitRootLogin no/g" /etc/ssh/sshd_config'+
                         ' && sed -i -e "s/#PubkeyAuthentication yes/PubkeyAuthentication yes/g" /etc/ssh/sshd_config'+
-                        ' && sed -i -e "s/#AuthorizedKeysFile .*/AuthorizedKeysFile .ssh/authorized_keys/g";'+
-                        'sh -c \'IFS="," read -ra SPLIT_KEYS<<< "$AUTHORIZED_KEYS"\';'+
-                        'for key in "${AUTHORIZED_KEYS[@]}"; do K=$key sh -c \'echo $K >> ~/.ssh/authorized_keys\';done;'+
+                        ' && sed -i -e "s/#AuthorizedKeysFile .*/AuthorizedKeysFile \\.ssh\\/authorized_keys/g";'+
+                        'AK=$AUTHORIZED_KEYS sh -c \'echo $AK | sed -e "s/,/\\\\n/g" > ~/.ssh/authorized_keys\''+
                         'service ssh start -D;'
                 }
             },
