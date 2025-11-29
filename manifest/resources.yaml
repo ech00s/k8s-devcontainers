@@ -10,16 +10,6 @@ metadata:
   namespace: devc
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: devc-service-reader
-rules:
-- apiGroups: [""]
-  resources: ["services"]
-  verbs: ["get", "list"] 
-
----
-apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: devc-pod
@@ -27,10 +17,13 @@ metadata:
 rules:
 - apiGroups: [""]
   resources: ["services", "persistentvolumeclaims"]
-  verbs: ["get", "list", "watch", "create", "delete"]
+  verbs: ["get", "list", "create", "delete", "watch"]
 - apiGroups: ["apps"]
   resources: ["deployments"]
-  verbs: ["get", "list", "watch", "create", "delete"]
+  verbs: ["get", "list", "create", "delete", "watch"]
+- apiGroups: ["gateway.networking.k8s.io"]
+  resources: ["gateways", "tcproutes"]
+  verbs: ["get", "list", "create", "delete", "watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -46,19 +39,16 @@ roleRef:
   name: devc-pod
   apiGroup: rbac.authorization.k8s.io
 ---
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+apiVersion: v1
+kind: PersistentVolumeClaim
 metadata:
-  name: devc-reader-bind
-  namespace: devc
-subjects:
-- kind: ServiceAccount
-  name: devc-sa
-  namespace: devc
-roleRef:
-  kind: ClusterRole
-  name: devc-service-reader
-  apiGroup: rbac.authorization.k8s.io
+  name: devc-pvc
+  labels: { app: devc-cli }
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 1Gi
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -72,9 +62,16 @@ spec:
   template:
     metadata: { labels: { app: devc-cli } }
     spec:
+      volumes:
+        - name: devc-vol
+          persistentVolumeClaim:
+            claimName: devc-pvc
       serviceAccountName: devc-sa
       containers:
       - name: devc-cli
         image: ech00s/devc-cli:alpha0.1.0 
         imagePullPolicy: Always
+        volumeMounts:
+          - name: devc-vol
+            mountPath: /.devc
         command: ["tail", "-f", "/dev/null"]

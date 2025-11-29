@@ -1,7 +1,7 @@
-import * as CM from "cli-maker"
-import { clean_up, deploy, list_containers } from "../functions"
+import  {cmd_builder,logger,cli_builder} from "cli-maker"
+import { controller,is_derror} from "../controller"
 
-const new_builder = CM.cmd_builder.make_builder()
+const new_builder = cmd_builder.make_builder({logger,controller})
 const deploy_cmd = new_builder("deploy","Deploy a dev container")
     .add_named("language","enum",{
         choices:[
@@ -15,11 +15,6 @@ const deploy_cmd = new_builder("deploy","Deploy a dev container")
         shorthand:"-l",
         description:"Dev container language"
     })
-    .add_named("namespace","str",{
-        default:"devc",
-        shorthand:"-n",
-        description:"Deployment namespace"
-    })
     .add_named("workspace","str",{
         default:"workspace",
         shorthand:"-w",
@@ -30,62 +25,67 @@ const deploy_cmd = new_builder("deploy","Deploy a dev container")
         shorthand:"-s",
         description:"Workspace persistent volume size"
     })
-    .add_func(async ({logger},{
+    .add_named("tag","str",{
+        optional:true,
+        shorthand:"-t",
+        description:"Tag for the dev containe resources, used for delete and hostname generation"
+    })
+    .add_named("key-files","path",{
+        optional:false,
+        variadic:true,
+        description:"Paths to the ssh keys to authorize"
+    })
+    .add_func(async ({logger,controller},{
         language,
-        namespace,
         workspace,
-        ["pvc-size"]:pvc_size
+        tag,
+        ["pvc-size"]:pvc_size,
+        ["key-files"]:key_files
     })=>{
         if(pvc_size>5 || pvc_size<=0){
            logger.throw("Invalid pvc size: "+pvc_size.toString())
         }
-        await deploy(
+
+        const res = await controller.deploy(
             language,
-            namespace,
             workspace,
             pvc_size,
-            logger
+            key_files,
+            tag
         )
+
+        if(is_derror(res)){
+            logger.throw(`Error while deploying: ${res.details}`)
+        }
+        logger.info(`Successfully deployed: ${res}, under ${res}.${controller.get_val("domain")}`)
     })
     .build()
 
 const delete_cmd = new_builder("delete","Delete dev container resources")
-    .add_named("port","int",{
-        shorthand:"-p",
-        description:"NodePort of dev container service"
+    .add_named("tag","str",{
+        shorthand:"-t",
+        description:"Tag of the dev container to delete"
     })
-    .add_named("namespace","str",{
-        default:"devc",
-        shorthand:"-n",
-        description:"Deployment namespace"
-    })
-    .add_func(async ({logger},{port,namespace})=>{
-        if(port<30000 || port>=32767){
-            logger.throw("Invalid port: "+port.toString())
+    .add_func(async ({logger,controller},{tag})=>{
+        const res = await controller.delete(tag)
+        if(is_derror(res)){
+            logger.throw(`Error while marking ${tag} for deletion: ${res.details}`)
         }
-        await clean_up(
-            namespace,
-            port,
-            logger
-        )
+        logger.info(`${tag} resources marked for deletion`)
     })
     .build()
 
 const list_cmd = new_builder("list","List currently used nodeports")
-    .add_named("namespace","str",{
-        default:"devc",
-        shorthand:"-n",
-        description:"Deployment namespace"
-    })
-    .add_func(async ({logger},{namespace})=>{
-        await list_containers(
-            namespace,
-            logger
-        )
+    .add_func(async ({logger,controller})=>{
+        const res = await controller.list()
+        if(is_derror(res)){
+            logger.throw(`Error while listing resources: ${res.details}`)
+        }
+        logger.info(res)
     })
     .build()
 
-const devc = new CM.cli_builder("devc","Deploy and manage dev containers over kubernetes")
+const devc = new cli_builder("devc","Deploy and manage dev containers over kubernetes")
     .add_subcmd(deploy_cmd)
     .add_subcmd(delete_cmd)
     .add_subcmd(list_cmd)
