@@ -277,7 +277,8 @@ export class controller extends plugin<controller_config>{
                                         "mountPath":`/home/vscode/entrypoint`
                                     }
                                 ],
-                                "command":["/home/vscode/entrypoint/entrypoint.sh"]
+                                "command":["/bin/sh","-c"],
+                                "args":["/home/vscode/entrypoint/entrypoint.sh"]
                             }
                             ]
                         }
