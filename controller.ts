@@ -81,7 +81,7 @@ export class controller extends plugin<controller_config>{
                         'sed -i "s/#PasswordAuthentication yes/PasswordAuthentication no/g" /etc/ssh/sshd_config \ \n'+
                         '    && sed -i "s/#PermitRootLogin prohibit-password/PermitRootLogin no/g" /etc/ssh/sshd_config \ \n'+
                         '    && sed -i "s/#PubkeyAuthentication yes/PubkeyAuthentication yes/g" /etc/ssh/sshd_config \ \n'+
-                        '    && sed -i "s/#AuthorizedKeysFile .*/AuthorizedKeysFile .ssh/authorized_keys/g" \ \n'+
+                        '    && sed -i "s/#AuthorizedKeysFile .*/AuthorizedKeysFile .ssh/authorized_keys/g"  \n'+
                         'IFS="," read -ra SPLIT_KEYS<<< "$AUTHORIZED_KEYS"\n'+
                         'for key in "${AUTHORIZED_KEYS[@]}"; do\n'+
                         '    echo $key >> ~/.ssh/authorized_keys\n'+
