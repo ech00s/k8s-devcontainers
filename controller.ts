@@ -94,6 +94,7 @@ export class controller extends plugin<controller_config>{
                 "kind": "PersistentVolumeClaim",
                 "metadata": {
                     "name": `${TAG}-pvc`,
+                    "namespace":NAMESPACE,
                     "labels": {
                     "app": TAG
                     }

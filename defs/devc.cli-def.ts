@@ -75,7 +75,7 @@ const delete_cmd = new_builder("delete","Delete dev container resources")
     })
     .build()
 
-const list_cmd = new_builder("list","List currently used nodeports")
+const list_cmd = new_builder("list","List currently deployed container tags")
     .add_func(async ({logger,controller})=>{
         const res = await controller.list()
         if(is_derror(res)){
