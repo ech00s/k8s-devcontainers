@@ -16,7 +16,7 @@ metadata:
   namespace: devc
 rules:
 - apiGroups: [""]
-  resources: ["services", "persistentvolumeclaims"]
+  resources: ["services", "persistentvolumeclaims","configmaps"]
   verbs: ["get", "list", "create", "delete", "watch"]
 - apiGroups: ["apps"]
   resources: ["deployments"]
