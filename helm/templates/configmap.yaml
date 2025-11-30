@@ -10,12 +10,12 @@ data:
         "plugins":{
           "controller":{
             "namespace":{{ .Release.Namespace | quote}},
-            "workspace": {{ .Values.workspace | quote}}
+            "workspace": {{ .Values.workspace | quote}},
             "domain":{{ .Values.domain | quote}},
             "ingress_annotations":{
               "cert-manager.io/issuer":{{ .Values.issuer | quote}},
-              "cert-manager.io/issuer-group":{{ .Values.issuer-group | quote}},
-              "cert-manager.io/issuer-kind":{{ .Values.issuer-kind | quote}}
+              "cert-manager.io/issuer-group":{{ .Values.issuer_group | quote}},
+              "cert-manager.io/issuer-kind":{{ .Values.issuer_kind | quote}}
             }
           }
         }
