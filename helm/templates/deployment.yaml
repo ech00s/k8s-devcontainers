@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devc-cli
+  namespace: {{ .Release.Namespace}}
+  labels: { app: devc-cli }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: devc-cli } }
+  template:
+    metadata: { labels: { app: devc-cli } }
+    spec:
+      volumes:
+        - name: devc-vol
+          persistentVolumeClaim:
+            claimName: devc-pvc
+        - name: devc-config
+          configMap:
+            name: devc-cfgmap
+      serviceAccountName: devc-sa
+      containers:
+      - name: devc-cli
+        image: ech00s/devc-cli:alpha0.1.0 
+        imagePullPolicy: Always
+        volumeMounts:
+          - name: devc-vol
+            mountPath: {{ .Values.workspace}}
+          - name: devc-config
+            mountPath: /config
+        command: ["sh","-c","devc --config set /config/devc.conf && tail -f /dev/null"]

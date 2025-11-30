@@ -46,9 +46,9 @@ export class controller extends plugin<controller_config>{
             ingress_annotations:"$ref/obj/ingress_annotations"
         },{
             "ingress_annotations":{
-                issuer:"str",
-                "issuer-group":"str",
-                "issuer-kind":"str"
+                "cert-manager.io/issuer":"str",
+                "cert-manager.io/issuer-group":"str",
+                "cert-manager.io/issuer-kind":"str"
             }
         })
     }

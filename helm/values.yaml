@@ -1,0 +1,5 @@
+workspace: /.devc
+domain: example.com
+issuer: letsencrypt
+issuer-group: cert-manager.io/v1
+issuer-kind: issuer
