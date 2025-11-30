@@ -81,7 +81,7 @@ export class controller extends plugin<controller_config>{
                         'sed -i -e "s/#PasswordAuthentication yes/PasswordAuthentication no/g" /etc/ssh/sshd_config;'+
                         'sed -i -e "s/#PermitRootLogin prohibit-password/PermitRootLogin no/g" /etc/ssh/sshd_config;'+
                         'sed -i -e "s/#PubkeyAuthentication yes/PubkeyAuthentication yes/g" /etc/ssh/sshd_config;'+
-                        'sed -i -e "s/#AuthorizedKeysFile .*/AuthorizedKeysFile \.ssh\/authorized_keys/g" /etc/ssh/sshd_config;'+
+                        'sed -i -e "s/#AuthorizedKeysFile\\s*\\.ssh\\/authorized_keys\s*\\.ssh\\/authorized_keys2/AuthorizedKeysFile \\.ssh\\/authorized_keys/g" /etc/ssh/sshd_config;'+
                         'AK=$AUTHORIZED_KEYS sh -c \'echo $AK | sed -e "s/,/\\n/g" > ~/.ssh/authorized_keys\';'+
                         'service ssh start -D;'
                 }
