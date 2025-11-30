@@ -87,7 +87,7 @@ export class controller extends plugin<controller_config>{
                         'sed -i -e "s/#PubkeyAuthentication yes/PubkeyAuthentication yes/g" /etc/ssh/sshd_config;'+
                         'sed -i -e "s/#AuthorizedKeysFile .*/AuthorizedKeysFile \.ssh\/authorized_keys/g" /etc/ssh/sshd_config;'+
                         'AK=$AUTHORIZED_KEYS UH=$USER_HOME sh -c \'echo $AK | sed -e "s/,/\\n/g" > $UH/.ssh/authorized_keys\';'+
-                        'service ssh start -D;'+
+                        'service ssh start -D;'
                 }
             },
             {
