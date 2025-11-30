@@ -73,17 +73,21 @@ export class controller extends plugin<controller_config>{
                 "data":{
                     "entrypoint.sh":''+
                         'set -e;'+
+                        'export USER_HOME="/home/vscode";'+
+                        'export USER="vscode";'+
                         'apt-get update -y;'+
                         'apt-get install -y openssh-server;'+
-                        'touch ~/.ssh/authorized_keys;'+
-                        'chmod 700 ~/.ssh;'+
-                        'chmod 600 ~/.ssh/authorized_keys;'+
+                        'mkdir -p $USER_HOME/.ssh;'+
+                        'touch $USER_HOME/.ssh/authorized_keys;'+
+                        'chown -R $USER:$USER $USER_HOME;'+
+                        'chmod 700 $USER_HOME/.ssh;'+
+                        'chmod 600 $USER_HOME/.ssh/authorized_keys;'+
                         'sed -i -e "s/#PasswordAuthentication yes/PasswordAuthentication no/g" /etc/ssh/sshd_config;'+
                         'sed -i -e "s/#PermitRootLogin prohibit-password/PermitRootLogin no/g" /etc/ssh/sshd_config;'+
                         'sed -i -e "s/#PubkeyAuthentication yes/PubkeyAuthentication yes/g" /etc/ssh/sshd_config;'+
-                        'sed -i -e "s/#AuthorizedKeysFile\\s*\\.ssh\\/authorized_keys\s*\\.ssh\\/authorized_keys2/AuthorizedKeysFile \\.ssh\\/authorized_keys/g" /etc/ssh/sshd_config;'+
-                        'AK=$AUTHORIZED_KEYS sh -c \'echo $AK | sed -e "s/,/\\n/g" > ~/.ssh/authorized_keys\';'+
-                        'service ssh start -D;'
+                        'sed -i -e "s/#AuthorizedKeysFile .*/AuthorizedKeysFile \.ssh\/authorized_keys/g" /etc/ssh/sshd_config;'+
+                        'AK=$AUTHORIZED_KEYS UH=$USER_HOME sh -c \'echo $AK | sed -e "s/,/\\n/g" > $UH/.ssh/authorized_keys\';'+
+                        'service ssh start -D;'+
                 }
             },
             {
