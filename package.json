@@ -3,14 +3,15 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "help": "cli-maker --help",
-    "build": "cli-maker build -i defs -o build"
+    "format": "prettier --write .",
+    "build": "cli-maker build -i defs -o bin"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
     "@types/node": "^24.10.0",
+    "prettier": "^3.9.5",
     "typescript": "^5.9.3"
   },
   "dependencies": {
