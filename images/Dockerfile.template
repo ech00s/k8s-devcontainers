@@ -5,8 +5,8 @@ ARG TAG
 
 FROM mcr.microsoft.com/devcontainers/${LANGUAGE}:${TAG}
 
-ENV AUTHORIZED_KEYS
-ENV KUBECONFIG
+ENV AUTHORIZED_KEYS=""
+ENV KUBECONFIG="/home/vscode/.kube/config"
 
 USER root
 #install openssh-server
