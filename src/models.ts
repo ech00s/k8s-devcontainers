@@ -26,5 +26,5 @@ export interface generator<T extends env_cfg>{
     generate(cfg:T):resource[]
 }
 
-export const supported_languages = ["cpp","python","go","rust","typescript-node","java","zig"] as const
+export const supported_languages = ["cpp","python","go","rust","typescript-node","java"] as const
 export type language = (typeof supported_languages)[number]
