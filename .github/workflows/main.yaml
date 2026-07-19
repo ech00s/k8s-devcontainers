@@ -4,7 +4,7 @@ on:
 jobs:
   build:
     runs-on: 
-      - amd64
+      - ech00s-runner
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -15,8 +15,42 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
   
-      - name: build
+      - name: build-cli
         run: docker build -t ech00s/devc-cli:alpha0.1.0 .
+  
+      - name: build-images
+        run: |
+          TAG="bookworm"
+          TARGETARCH="amd64"
+          KUBECTL_VERSION="v1.35.6"
+
+          LANGUAGES=(
+            "cpp"
+            "python"
+            "go"
+            "rust"
+            "typescript-node"
+            "java"
+            "zig"
+          )
+
+          for LANGUAGE in "${LANGUAGES[@]}"; do
+            IMAGE="ech00s/dev-container:${LANGUAGE}"
+
+            echo "Building ${IMAGE}"
+
+            docker build \
+              -f images/Dockerfile.template \
+              --build-arg LANGUAGE="${LANGUAGE}" \
+              --build-arg TAG="${TAG}" \
+              --build-arg TARGETARCH="${TARGETARCH}" \
+              --build-arg KUBECTL_VERSION="${KUBECTL_VERSION}" \
+              -t "${IMAGE}" \
+              images
+            
+            docker push $IMAGE
+
+          done
       
-      - name: push
+      - name: push-cli
         run: docker push ech00s/devc-cli:alpha0.1.0

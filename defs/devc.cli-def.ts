@@ -1,74 +1,63 @@
-import  {cmd_builder,logger,cli_builder,register_plugin,meta_arg,add_meta_arg, obj} from "cli-maker"
-import { controller,is_derror} from "../controller"
+import  {cmd_builder,logger,cli_builder,register_plugin,meta_arg,add_meta_arg} from "cli-maker"
+import { controller} from "../src/controller-plugin"
+import { supported_languages } from "../src/models"
+import { is_derror } from "../src/controller-impl"
 
 register_plugin(controller)
 
 const namespace:meta_arg = {
     plugin: "controller",
-    shorthands:["-cn","--ctrl-namespace"],
-    name: "ctrl-namespace",
+    shorthands:["-n","--namespace"],
+    name: "namespace",
     key: "namespace",
     type:"str"
 }
 
 add_meta_arg(namespace)
 
-const workspace:meta_arg = {
-    plugin: "controller",
-    shorthands:["-cw","--ctrl-workspace"],
-    name: "ctrl-workspace",
-    key: "workspace",
-    type:"path"
-
-}
-
-add_meta_arg(workspace)
-
 const domain:meta_arg = {
     plugin: "controller",
-    shorthands:["-cd","--ctrl-domain"],
-    name: "ctrl-domain",
+    shorthands:["-d","--domain"],
+    name: "domain",
     key: "domain",
     type:"str"
 }
 
 add_meta_arg(domain)
 
-const ingress_annotations:meta_arg = {
+const pool:meta_arg = {
     plugin: "controller",
-    shorthands:["-ca","--ctrl-annotations"],
-    name: "ctrl-annotations",
-    key: "ingress_annotations",
-    type:"str_lst",
-    transform: ([issuer,group,kind]:string[]) => {
-        return {
-            "cert-manager.io/issuer":issuer,
-            "cert-manager.io/issuer-group":group,
-            "cert-manager.io/issuer-kind":kind
-        }
-    },
+    shorthands:["-p","--pool"],
+    name: "pool",
+    key: "pool",
+    type:"str"
 }
 
-add_meta_arg(ingress_annotations)
+add_meta_arg(pool)
+
+for(const sl of supported_languages){
+    const name  = `${sl}-image-override`
+    const meta:meta_arg = {
+        plugin:"controller",
+        shorthands:[`--${name}`],
+        name:name,
+        key:"overrides",
+        type:"str",
+        transform:(image_override:string)=>{
+            return {
+                [sl]:image_override
+            };
+        }
+    }
+    add_meta_arg(meta)
+}
 
 const new_builder = cmd_builder.make_builder({logger,controller})
 const deploy_cmd = new_builder("deploy","Deploy a dev container")
     .add_named("language","enum",{
-        choices:[
-            "cpp",
-            "python",
-            "java",
-            "go",
-            "rust",
-            "typescript-node"
-        ],
+        choices:supported_languages as any,
         shorthand:"-l",
         description:"Dev container language"
-    })
-    .add_named("workspace","str",{
-        default:"workspace",
-        shorthand:"-w",
-        description:"Workspace folder name"
     })
     .add_named("pvc-size","int",{
         default:1,
@@ -86,7 +75,6 @@ const deploy_cmd = new_builder("deploy","Deploy a dev container")
     })
     .add_func(async ({logger,controller},{
         language,
-        workspace,
         tag,
         ["pvc-size"]:pvc_size,
     },...keys)=>{
@@ -96,7 +84,6 @@ const deploy_cmd = new_builder("deploy","Deploy a dev container")
 
         const res = await controller.deploy(
             language,
-            workspace,
             pvc_size,
             keys,
             tag
@@ -117,7 +104,7 @@ const delete_cmd = new_builder("delete","Delete dev container resources")
     .add_func(async ({logger,controller},{tag})=>{
         const res = await controller.delete(tag)
         if(is_derror(res)){
-            logger.throw(`Error while marking ${tag} for deletion: ${res.details}`)
+            logger.throw(`Error while marking ${tag} for deletion:\n${res.details}`)
         }
         logger.info(`${tag} resources marked for deletion`)
     })
@@ -125,11 +112,25 @@ const delete_cmd = new_builder("delete","Delete dev container resources")
 
 const list_cmd = new_builder("list","List currently deployed container tags")
     .add_func(async ({logger,controller})=>{
-        const res = await controller.list()
+        const res = await controller.list_managed_namespaces()
         if(is_derror(res)){
-            logger.throw(`Error while listing resources: ${res.details}`)
+            logger.throw(`Error while listing namespaces: ${res.details}`)
+            return
         }
-        logger.info(res)
+        for(const r of res){
+            try{
+                const ures = await controller.list_namespace_resources(r.metadata.name)
+                if(is_derror(ures)){
+                    logger.throw(`Error while listing resources for namespace ${r.metadata.name}: ${ures.details}`)
+            return
+                }
+                for(const ur of ures){
+                    logger.info(`${ur.kind}: ${ur.metadata.name}`)
+                }
+            }catch(err){
+                logger.throw(`Error while going through managed resources: ${err}`)
+            }
+        }
     })
     .build()
 

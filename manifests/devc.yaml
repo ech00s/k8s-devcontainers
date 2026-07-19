@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devc-cli
+  namespace: devc
+  labels: { app: devc-cli }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: devc-cli } }
+  template:
+    metadata: { labels: { app: devc-cli } }
+    spec:
+      serviceAccountName: devc-sa
+      containers:
+      - name: devc-cli
+        image: ech00s/devc-cli:alpha0.1.0 
+        imagePullPolicy: Always
+        command: ["tail", "-f", "/dev/null"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: devc-pod
+  namespace: devc
+rules:
+- apiGroups: [""]
+  resources: ["services", "persistentvolumeclaims","configmaps"]
+  verbs: ["get", "list", "create", "delete", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "create", "delete", "watch"]
+- apiGroups: ["gateway.networking.k8s.io"]
+  resources: ["gateways", "tcproutes"]
+  verbs: ["get", "list", "create", "delete", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: devc-bind
+  namespace: devc
+subjects:
+- kind: ServiceAccount
+  name: devc-sa
+  namespace: devc
+roleRef:
+  kind: Role
+  name: devc-pod
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: devc-sa
+  namespace: devc

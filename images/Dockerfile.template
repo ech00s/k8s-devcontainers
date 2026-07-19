@@ -1,0 +1,34 @@
+ARG LANGUAGE
+ARG TARGETARCH
+ARG KUBECTL_VERSION
+ARG TAG
+
+FROM mcr.microsoft.com/devcontainers/${LANGUAGE}:${TAG}
+
+ENV AUTHORIZED_KEYS
+ENV KUBECONFIG
+
+USER root
+#install openssh-server
+RUN apt-get update && apt-get install -y curl openssh-server
+COPY sshd.conf /etc/ssh/sshd_config.d/devc.conf
+RUN mkdir -p /run/sshd
+
+#install kubectl
+RUN mkdir -p /tmp/kd && \
+    if [ -z "$KUBECTL_VERSION" ]; then \
+        KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt); \
+    fi && \
+    curl -L -o /tmp/kd/kubectl \
+        "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${TARGETARCH}/kubectl" && \
+    curl -L -o /tmp/kd/kubectl.sha256 \
+        "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${TARGETARCH}/kubectl.sha256" && \
+    echo "$(cat /tmp/kd/kubectl.sha256)  /tmp/kd/kubectl" | sha256sum --check && \
+    install -o root -g root -m 0755 /tmp/kd/kubectl /usr/local/bin/kubectl && \
+    rm -rf /tmp/kd
+
+
+COPY entrypoint.sh /usr/local/bin/devc-entrypoint
+RUN chmod +x /usr/local/bin/devc-entrypoint
+USER vscode
+ENTRYPOINT ["devc-entrypoint"]
