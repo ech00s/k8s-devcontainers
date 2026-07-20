@@ -193,6 +193,7 @@ export namespace templates {
               {
                 name,
                 image,
+                imagePullPolicy: "Always",
                 env: [
                   {
                     name: "AUTHORIZED_KEYS",

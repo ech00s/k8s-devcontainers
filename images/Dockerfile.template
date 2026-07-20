@@ -31,5 +31,4 @@ RUN mkdir -p /tmp/kd && \
 
 COPY entrypoint.sh /usr/local/bin/devc-entrypoint
 RUN chmod +x /usr/local/bin/devc-entrypoint
-USER vscode
 ENTRYPOINT ["devc-entrypoint"]
