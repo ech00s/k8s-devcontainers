@@ -14,7 +14,7 @@ USER root
 RUN apt-get update && apt-get install -y curl openssh-server
 COPY sshd.conf /etc/ssh/sshd_config.d/devc.conf
 RUN mkdir -p /run/sshd
-
+RUN ssh-keygen -A
 #install kubectl
 RUN mkdir -p /tmp/kd && \
     if [ -z "$KUBECTL_VERSION" ]; then \

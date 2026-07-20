@@ -13,5 +13,4 @@ printf "%s" "$AUTHORIZED_KEYS" \
 chown -R "$USER:$USER" "$HOME/.ssh"
 chmod 700 "$HOME/.ssh"
 chmod 600 "$HOME/.ssh/authorized_keys"
-ssh-keygen -A
 exec /usr/sbin/sshd -D
