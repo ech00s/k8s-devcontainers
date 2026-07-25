@@ -24,6 +24,9 @@ add_if_set DEVC_CONTROLLER_ISSUER_NAME issuer-name
 add_if_set DEVC_CONTROLLER_ISSUER_KIND issuer-kind
 add_if_set DEVC_CONTROLLER_POOL_LABEL pool
 
+echo Created config:
+echo $controller
+
 if [ "$controller_enabled" = true ]; then
     jq -n \
         --argjson controller "$controller" \
