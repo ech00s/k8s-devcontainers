@@ -29,37 +29,171 @@ spec:
             - /dev/null
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: ClusterRoleBinding
 metadata:
-  name: devc-pod
-  namespace: devc
-rules:
-  - apiGroups: [""]
-    resources: ["services", "persistentvolumeclaims", "configmaps"]
-    verbs: ["get", "list", "create", "delete", "watch"]
-  - apiGroups: ["apps"]
-    resources: ["deployments"]
-    verbs: ["get", "list", "create", "delete", "watch"]
-  - apiGroups: ["gateway.networking.k8s.io"]
-    resources: ["gateways", "tcproutes"]
-    verbs: ["get", "list", "create", "delete", "watch"]
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: devc-bind
-  namespace: devc
+  name: devc-clusterrole-binding
 subjects:
   - kind: ServiceAccount
     name: devc-sa
     namespace: devc
 roleRef:
-  kind: Role
-  name: devc-pod
   apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: devc-clusterrole
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: devc-sa
   namespace: devc
+  
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: devc-clusterrole
+rules:
+  - apiGroups: [""]
+    resources:
+      - namespaces
+    verbs: ["get", "list", "create", "delete"]
+
+  - apiGroups: [""]
+    resources:
+      - pods
+      - pods/log
+      - pod/exec
+      - pod/attach
+      - services
+      - configmaps
+      - persistentvolumeclaims
+      - secrets
+      - events
+      - serviceaccounts
+    verbs: ["get", "list", "create", "delete", "watch"]
+
+  - apiGroups: ["apps"]
+    resources:
+      - deployments
+      - replicasets
+      - statefulsets
+      - daemonsets
+    verbs: ["get", "list", "create", "delete", "watch"]
+  
+  
+  - apiGroups: ["batch"]
+    resources:
+      - jobs
+      - cronjobs
+    verbs: ["get", "list", "create", "delete", "watch"]
+
+  - apiGroups: ["gateway.networking.k8s.io"]
+    resources:
+      - gateways
+      - tcproutes
+    verbs: ["get", "list", "create", "delete", "watch"]
+  
+  - apiGroups: ["gateway.envoyproxy.io/v1alpha1"]
+    resources:
+      - clienttrafficpolicies
+    verbs: ["get", "list", "create", "delete", "watch"]
+  
+  - apiGroups: ["cert-manager.io/v1"]
+    resources:
+      - certificates
+    verbs: ["get", "list", "create", "delete", "watch"]
+
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources:
+      - roles
+      - rolebindings
+    verbs: ["get", "list", "create", "delete", "watch"]
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: devc-scope
+spec:
+  matchConditions:
+    - name: devc-service-account
+      expression: >
+        request.userInfo.username ==
+        "system:serviceaccount:devc:devc-sa"
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE", "DELETE"]
+        resources:
+          - namespaces
+          - pods
+          - services
+          - configmaps
+          - persistentvolumeclaims
+          - secrets
+          - serviceaccounts
+
+      - apiGroups: ["apps"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE", "DELETE"]
+        resources:
+          - deployments
+          - replicasets
+          - statefulsets
+          - daemonsets
+
+      - apiGroups: ["batch"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE", "DELETE"]
+        resources:
+          - jobs
+          - cronjobs
+
+      - apiGroups: ["gateway.networking.k8s.io"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE", "DELETE"]
+        resources:
+          - gateways
+          - tcproutes
+      
+      - apiGroups: ["gateway.envoyproxy.io"]
+        apiVersions: ["v1alpha1"]
+        operations: ["CREATE", "UPDATE", "DELETE"]
+        resources:
+          - clienttrafficpolicies
+      
+      - apiGroups: ["cert-manager.io"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE", "DELETE"]
+        resources:
+          - certificates
+
+      - apiGroups: ["rbac.authorization.k8s.io"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE", "DELETE"]
+        resources:
+          - roles
+          - rolebindings
+
+  validations:
+    # Namespace objects
+    - expression: |
+        request.resource.resource != "namespaces" ||
+        object.metadata.name.matches("^devc-.*$")
+      message: "Namespaces must have names beginning with 'devc-'"
+
+    # All other namespaced resources
+    - expression: |
+        request.resource.resource == "namespaces" ||
+        object.metadata.namespace.matches("^devc-.*$")
+      message: "Resources may only be created, updated, or deleted in namespaces beginning with 'devc-'"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: devc-scope-binding
+spec:
+  policyName: devc-scope
+  validationActions:
+    - Deny

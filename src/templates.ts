@@ -44,7 +44,7 @@ export namespace templates {
             "secrets",
             "events",
           ],
-          verbs: ["*"],
+          verbs: ["get", "list", "create", "delete", "watch"],
         },
         {
           apiGroups: ["apps"],
@@ -54,12 +54,12 @@ export namespace templates {
             "statefulsets",
             "daemonsets",
           ],
-          verbs: ["*"],
+          verbs: ["get", "list", "create", "delete", "watch"],
         },
         {
           apiGroups: ["batch"],
           resources: ["jobs", "cronjobs"],
-          verbs: ["*"],
+          verbs: ["get", "list", "create", "delete", "watch"],
         },
       ],
     };
