@@ -37,7 +37,6 @@ if [ "$controller_enabled" = true ]; then
         }' > config.json
 
     devc --config set config.json
-    rm -f config.json
 else
     echo "No controller configuration provided; skipping config setup."
 fi

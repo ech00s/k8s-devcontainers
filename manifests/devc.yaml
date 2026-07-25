@@ -63,15 +63,3 @@ kind: ServiceAccount
 metadata:
   name: devc-sa
   namespace: devc
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: devc-controller-config
-  namespace: devc
-data:
-  DEVC_CONTROLLER_DOMAIN: example.com
-  DEVC_CONTROLLER_NAMESPACE: default
-  DEVC_CONTROLLER_ISSUER_NAME: letsencrypt
-  DEVC_CONTROLLER_ISSUER_KIND: ClusterIssuer
-  DEVC_CONTROLLER_POOL_LABEL: worker

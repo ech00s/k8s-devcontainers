@@ -7,8 +7,7 @@ export class _controller {
   private static client() {
     if (!_controller._client) {
       const kc = new k8s.KubeConfig();
-      kc.loadFromFile(path.join(process.env.HOME!, ".kube/config"));
-      //kc.loadFromCluster();
+      kc.loadFromCluster();
       _controller._client = k8s.KubernetesObjectApi.makeApiClient(kc);
     }
 
