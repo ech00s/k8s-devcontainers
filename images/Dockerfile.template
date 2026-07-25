@@ -29,6 +29,6 @@ RUN mkdir -p /tmp/kd && \
     rm -rf /tmp/kd
 
 
-COPY entrypoint.sh /usr/local/bin/devc-entrypoint
-RUN chmod +x /usr/local/bin/devc-entrypoint
-ENTRYPOINT ["devc-entrypoint"]
+COPY entrypoint.sh /usr/local/bin/dev-container-entrypoint
+RUN chmod +x /usr/local/bin/dev-container-entrypoint
+ENTRYPOINT ["dev-container-entrypoint"]

@@ -15,7 +15,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
   
       - name: build-cli
-        run: docker build -t ech00s/devc-cli:alpha0.2.0 .
+        run: docker build -t ech00s/devc-cli:alpha0.2.0 -f devc-image/Dockerfile .
       
       - name: push-cli
         run: docker push ech00s/devc-cli:alpha0.2.0

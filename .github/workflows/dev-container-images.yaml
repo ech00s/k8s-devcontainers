@@ -1,6 +1,5 @@
 on:
-  push:
-    branches: [ "main"]
+  workflow_dispatch:
 jobs:
   build:
     runs-on: 
@@ -36,7 +35,7 @@ jobs:
             echo "Building ${IMAGE}"
 
             docker build \
-              -f images/Dockerfile.template \
+              -f dev-container-images/Dockerfile.template \
               --build-arg LANGUAGE="${LANGUAGE}" \
               --build-arg TAG="${TAG}" \
               --build-arg TARGETARCH="${TARGETARCH}" \
