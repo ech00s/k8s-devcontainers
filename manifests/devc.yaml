@@ -23,7 +23,7 @@ spec:
           envFrom:
             - configMapRef:
                 name: devc-controller-config
-          command:
+          args:
             - tail
             - -f
             - /dev/null

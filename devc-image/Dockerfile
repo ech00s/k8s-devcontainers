@@ -1,5 +1,5 @@
 FROM node:latest
-RUN apt-get install git
+RUN apt-get install git jq
 WORKDIR /app
 COPY . .
 RUN npm install
