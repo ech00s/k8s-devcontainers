@@ -1,3 +1,4 @@
+#!/bin/sh
 controller="$(jq -n '{}')"
 controller_enabled=false
 
