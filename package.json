@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "format": "prettier --write .",
-    "build": "cli-maker build -i defs -o bin"
+    "build": "cli-maker build -i defs -o build"
   },
   "author": "",
   "license": "ISC",
