@@ -69,26 +69,25 @@ const deploy_cmd = new_builder("deploy", "Deploy a dev container")
     optional: true,
     shorthand: "-t",
     description:
-      "Tag for the dev containe resources, used for delete and hostname generation",
-  })
-  .add_pos("str", {
-    variadic: true,
-    description: "Public ssh keys to authorize",
+      "Tag for the dev container resources, used for delete and hostname generation",
   })
   .add_func(
     async (
       { logger, controller },
-      { language, tag, ["pvc-size"]: pvc_size },
-      ...keys
+      { language, tag, ["pvc-size"]: pvc_size }
     ) => {
-      const res = await controller.deploy(language, pvc_size, keys, tag);
+      const res = await controller.deploy(language, pvc_size, tag);
 
       if (is_derror(res)) {
         logger.throw(`Error while deploying: ${res.details}`);
+        return
       }
+      const {prefix,private_key} = res
       logger.info(
-        `Successfully deployed: ${res}, under ${res}.${controller.get_val("domain")}`,
+        `Successfully deployed: ${prefix}, under ${prefix}.${controller.get_val("domain")}`,
       );
+      logger.info('Private key: ')
+      logger.info(private_key)
     },
   )
   .build();

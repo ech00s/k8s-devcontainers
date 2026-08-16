@@ -1,5 +1,6 @@
 import { env_cfg, issuer_cfg, generator, resource } from "./models";
 import { templates as tpls } from "./templates";
+
 export interface devc_env_cfg extends env_cfg {
   prefix: string;
   image: string;
@@ -75,6 +76,7 @@ export class devc_generator implements generator<devc_env_cfg> {
         cfg.issuer,
         cfg.prefix,
       ),
+
       tpls.client_traffic_policy(
         n.client_traffic_policy,
         n.namespace,

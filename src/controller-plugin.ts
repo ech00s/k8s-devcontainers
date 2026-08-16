@@ -3,6 +3,7 @@ import { randomBytes } from "crypto";
 import { devc_env_cfg, devc_generator } from "./generators";
 import { _controller } from "./controller-impl";
 import { resource, language, supported_languages } from "./models";
+import { get_key_pair } from "./ssh-keys";
 export interface derror {
   details: string;
 }
@@ -70,15 +71,13 @@ export class controller extends plugin<controller_config> {
   public async deploy(
     language: language,
     pvc_size: number,
-    authorized_keys: string[],
     _user_prefix?: string,
-  ): Promise<string | derror> {
+  ): Promise<{prefix:string,private_key:string} | derror> {
     //controller context
     const user_prefix = _user_prefix
       ? _user_prefix
       : randomBytes(4).toString("hex");
     const prefix = `${this.get_val("namespace")}-${user_prefix}`;
-    console.log(prefix);
     const issuer_kind = this.get_val("issuer-kind");
     const issuer_name = this.get_val("issuer-name");
     const issuer_group = this.get_val("issuer-group");
@@ -94,13 +93,14 @@ export class controller extends plugin<controller_config> {
         details: "Missing issuer for dev environment template",
       };
     }
+    const key_pair = get_key_pair(`for ${_user_prefix} dev env`)
 
     //env = user + controller
     const env_config: devc_env_cfg = {
       prefix: prefix,
       image: this.get_val(`${language}-image`),
       pvc_size: pvc_size,
-      authorized_keys: authorized_keys,
+      authorized_keys: [key_pair.ssh_serialized_public_key],
       domain: this.get_val("domain"),
       issuer: {
         name: issuer_name,
@@ -116,7 +116,7 @@ export class controller extends plugin<controller_config> {
 
     try {
       await _controller.deploy(resources);
-      return prefix;
+      return {prefix,private_key:key_pair.exported_private_key};
     } catch (err) {
       return {
         details: `${err}`,
